@@ -11,6 +11,14 @@ namespace slagerlista
     {
         static void Main(string[] args)
         {
+            //Ha nem létezik a fájl létrehozza egy zenével
+            if (!File.Exists("osszeszene.txt"))
+            {
+                StreamWriter letrehoz = new StreamWriter("osszeszene.txt");
+                letrehoz.WriteLine("Luis Fonsi - Despacito - 1");
+                letrehoz.Close();
+            }
+
             //Fájl beolvasása, lista létrehozása
             string[] beolvasas = File.ReadAllLines("osszeszene.txt");
             List<string> zenek = new List<string>();
@@ -45,8 +53,19 @@ namespace slagerlista
                             //A zene és szerző bekérése
                             Console.WriteLine($"Adja meg a(z) {i+1}. zene címét");
                             string zenecim = Console.ReadLine();
+                            while (zenecim == "")
+                            {
+                                Console.WriteLine($"Adja meg a(z) {i + 1}. zene címét");
+                                zenecim = Console.ReadLine();
+                            }
+
                             Console.WriteLine($"Adja meg a(z) {i+1}. zene szerzőjét");
                             string szerzo = Console.ReadLine();
+                            while (szerzo == "")
+                            {
+                                Console.WriteLine($"Adja meg a(z) {i + 1}. zene szerzőjét");
+                                szerzo = Console.ReadLine();
+                            }
 
                             //Végigmegy a listán
                             for (int j = 0; j < zenek.Count; j++)
@@ -66,18 +85,19 @@ namespace slagerlista
                                 //Ha nincs még ilyen a listában, hozzáadja 1 szavazattal
                                 if (j == zenek.Count - 1)
                                 {
-                                    szamlalo = 1;
+                                    szamlalo = 0;
                                     zenek.Add(zenecim + " - " + szerzo + " - " + (szamlalo));
                                 }
                             }
                             Console.Clear();
                         }
                         
-                        //Beleírja a fájlba a frissített listát
+                        //Beleírja a fájlba a frissített listát rendezve
                         StreamWriter fajlbair = new StreamWriter("osszeszene.txt");
-                        for (int i = 0; i < zenek.Count; i++)
+                        var rendezettLista = zenek.OrderByDescending(zene => int.Parse(zene.Split('-')[2]));
+                        foreach (string zene in rendezettLista)
                         {
-                            fajlbair.WriteLine(zenek[i]);
+                            fajlbair.WriteLine(zene);
                         }
                         fajlbair.Close();
                         break;
@@ -85,31 +105,20 @@ namespace slagerlista
                     case '2':
                         try
                         {
-                            int kiirosszamlalo = 0;
-
-                            //Top 10 rendezése
-                            var rendezettLista = zenek.OrderByDescending(zene => int.Parse(zene.Split('-')[2]));
-                            Console.WriteLine("Zene címe - Szerző - Szavazatok");
-                            Console.WriteLine();
-
                             //Top 10 kiíratása
-                            foreach (string zene in rendezettLista)
+                            Console.WriteLine("Helyezett - Zene címe - Szerző - Szavazatok");
+                            Console.WriteLine();
+                            for (int i = 0; i < 10; i++)
                             {
-                                kiirosszamlalo++;
-                                Console.WriteLine($"[{kiirosszamlalo}]\t{zene}");                 
-
-                                //Ha megvan a 10 kiíratott akkor leáll
-                                if (kiirosszamlalo == 10)
-                                {
-                                    break;
-                                }
+                                Console.WriteLine(zenek[i]);
                             }
                         }
                         catch (Exception)
                         {
-                            //Ha nincs elég a top10 kiírásához ezt írja ki
-                            Console.WriteLine("Nincs elég");
+                            //Ha nincs elég zene akkor tájékoztatja a felhasználót
+                            Console.WriteLine("10-nél kevesebb zene van!");
                         }
+                                              
                         break;
 
                     case '3':
